@@ -1,3 +1,16 @@
+# Changes in this fork (granary17)
+
+Ported the robustness work from [sertraline/zlibrary](https://github.com/sertraline/zlibrary) (fixes branch) onto this eapi-based single-file client:
+
+- **Exceptions instead of `print()` + `None`**: `ZlibraryError` / `LoginFailed` / `NotLoggedInError` / `HTTPError` (with `.url` / `.status`).
+- **Configurable domain**: `Zlibrary(domain="z-library.sk")`, `switchDomain()` for mirror rotation; optional `proxies={"https": "socks5h://127.0.0.1:9050"}` for Tor onion domains (needs `pip install requests[socks]`).
+- **Transport hardening**: `requests.Session` reuse, per-request timeout (default 30s), retry with exponential backoff on network errors and 429/5xx, HTTP status checked **before** `.json()` so 403/challenge pages raise `HTTPError` instead of a confusing `JSONDecodeError`.
+- **Type annotations fixed** (`[int, str]` list-literal "annotations" → real `Union`/`Optional`), `from __future__ import annotations` for py3.7+.
+- **100% drop-in**: every upstream method name/signature kept; `getBookFormat()` added as a properly-spelled alias of `getBookForamt()`.
+- **Offline test suite** (`tests/`, mocked HTTP) + GitHub Actions CI.
+
+Everything else is unchanged from upstream.
+
 # Zlibrary-API
 
 ![Python Version](https://img.shields.io/badge/python-3.6%20%7C%203.7%20%7C%203.8%20%7C%203.9%20%7C%203.10%20%7C%203.11%20%7C%203.12-blue)
