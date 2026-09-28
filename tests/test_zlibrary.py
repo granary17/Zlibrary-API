@@ -154,6 +154,18 @@ def test_download_book_builds_filename():
     assert fake.calls[2][1] == "https://dyn.example.com/file"
 
 
+def test_discover_domains_parses_api_response():
+    client, fake = make_client([
+        FakeResponse(200, {"domains": [
+            {"domain": "z-library.sk", "contentAvailable": True, "isRedirector": False},
+            {"domain": "1lib.sk", "contentAvailable": True, "isRedirector": False},
+        ]}),
+    ])
+    domains = client.discoverDomains()  # unauthenticated endpoint
+    assert [d["domain"] for d in domains] == ["z-library.sk", "1lib.sk"]
+    assert fake.calls[0][1] == "https://z-library.sk/eapi/info/domains"
+
+
 def test_get_book_format_alias():
     client, fake = make_client([
         FakeResponse(200, {"success": True, "user": {"id": 1, "remix_userkey": "k"}}),

@@ -25,6 +25,24 @@ Only dependency is ```requests``` you can install it using
 ```
 pip install requests
 ```
+## Domain reality check (verified 2026-09-28)
+
+Z-Library currently runs its own anti-bot wall (DiamWall) in front of its
+clearnet domains and rotates the public domain set — the "decentralized"
+model. Findings from live probing:
+
+- `1lib.sk`, `z-library.sk`, `z-lib.do` → 307 loop into a DiamWall challenge;
+  flagged datacenter/proxy IPs get an outright *Access Denied*.
+- `z-lib.help` → serves the eapi JSON API openly (33.5M books / 82M articles),
+  and is therefore this fork's default domain.
+- `GET /eapi/info/domains` (no auth needed) returns the *current* official
+  domain list — use `discoverDomains()` + `switchDomain()` instead of
+  hardcoding domains.
+- Search (`/eapi/book/search`) currently works without login; login returns
+  clean JSON (`{"success":0,"error":"Incorrect email or password"}`).
+- Downloads still require a logged-in account and, per the eapi docs, the
+  account's **personal domain** (the one e-mailed to you at registration) —
+  pass it via `Zlibrary(domain=...)` / `switchDomain()`.
 
 ---
 

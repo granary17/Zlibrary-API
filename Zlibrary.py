@@ -25,7 +25,7 @@ import requests
 
 logger = logging.getLogger("zlibrary")
 
-DEFAULT_DOMAIN = "1lib.sk"
+DEFAULT_DOMAIN = "z-lib.help"  # verified live 2026-09-28; see discoverDomains()
 DEFAULT_TIMEOUT = 30
 DEFAULT_RETRIES = 2
 RETRY_STATUSES = (429, 500, 502, 503, 504)
@@ -440,6 +440,24 @@ class Zlibrary:
 
     def getDomains(self) -> Dict[str, Any]:
         return self._get("/eapi/info/domains")
+
+    def discoverDomains(self) -> List[Dict[str, Any]]:
+        """Ask the API which official domains are alive right now.
+
+        Under the current (Hydra/DiamWall) architecture the public domain set
+        rotates and per-IP walls come and go — hardcoding one domain breaks
+        eventually. The unauthenticated /eapi/info/domains endpoint returns
+        the current list, e.g.::
+
+            [{"domain": "z-library.sk", "contentAvailable": true,
+              "isRedirector": false}, ...]
+
+        Call it on a client built with any currently-working domain, then
+        switchDomain() to a healthy one. After login the same endpoint also
+        reports the account's *personal* domain, which downloads require.
+        """
+        response = self._request("GET", "/eapi/info/domains", override=True)
+        return response.get("domains", [])
 
     def getLanguages(self) -> Dict[str, Any]:
         return self._get("/eapi/info/languages")
